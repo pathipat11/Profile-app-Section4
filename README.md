@@ -19,7 +19,8 @@ A modern and interactive profile showcase app built using **React Native** and *
 
 Here is a quick GIF showing the app's interface and interactions:
 
-![App Demo](assets/video/profile-app.gif)
+<img src="assets/video/profile-app.gif" alt="App Demo" width="250" />
+
 *Replace `assets/video/profile-app.gif` with your GIF file path.*
 
 ## 🛠️ Tech Stack
