@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Button } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import { useRouter } from "expo-router";
 
 const Book = () => {
     const [data, setData] = useState([]);
     const { color } = useTheme();
+    const router = useRouter();
 
     const bookData = async () => {
         try {
-            const response = await fetch("http://10.30.5.84:3000/api/books?page=1&limit=10");
+            const response = await fetch("http://10.30.5.12:3000/api/books?page=1&limit=10");
             const result = await response.json();
             // console.log("Book data fetched successfully:", result.books);
             console.log("Book data fetched successfully");
@@ -27,22 +29,20 @@ const Book = () => {
         <ScrollView style={[styles.container, { backgroundColor: color.background }]} showsVerticalScrollIndicator={false}>
             {data.length > 0 ? (
                 data.map((book, index) => (
-                    <View key={index} style={[styles.card, { backgroundColor: color.surface, borderLeftColor: color.primary }]}>
-                        <Text style={[styles.title, { color: color.primary }]}>{book.title}</Text>
-                        <Text style={[styles.text, { color: color.textSecondary }]}><Text style={styles.label}>Author:</Text> {book.author}</Text>
-                        <Text style={[styles.text, { color: color.textSecondary }]}><Text style={styles.label}>Genre:</Text> {book.genre}</Text>
-                        <Text style={[styles.text, { color: color.textSecondary }]}><Text style={styles.label}>Year:</Text> {book.year}</Text>
-                        <Text style={[styles.text, { color: color.textSecondary }]}><Text style={styles.label}>Price:</Text> ${book.price}</Text>
-                        <Text style={[styles.text, { color: color.textSecondary }]}>
-                            <Text style={styles.label}>Available:</Text>{" "}
-                            <Text style={{ color: book.available ? "#28a745" : "#dc3545" }}>
-                                {book.available ? "✅ Yes" : "❌ No"}
+                    <TouchableOpacity
+                        key={index}
+                        onPress={() => router.push(`/book_detail?id=${book._id}`)}
+                    >
+                        <View style={[styles.card, { backgroundColor: color.surface, borderLeftColor: color.primary }]}>
+                            <Text style={[styles.title, { color: color.primary }]}>{book.title}</Text>
+                            <Text style={[styles.text, { color: color.textSecondary }]}>
+                                <Text style={styles.label}>Author:</Text> {book.author}
                             </Text>
-                        </Text>
-                        <Text style={[styles.text, { color: color.textSecondary }]}>
-                            <Text style={styles.label}>Added By:</Text> {book.addedBy?.username}
-                        </Text>
-                    </View>
+                            <Text style={[styles.text, { color: color.textSecondary }]}>
+                                <Text style={styles.label}>Genre:</Text> {book.genre}
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
                 ))
             ) : (
                 <Text style={styles.noData}>No books found.</Text>

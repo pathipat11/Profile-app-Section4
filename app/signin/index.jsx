@@ -28,7 +28,7 @@ const Signin = () => {
 
         setLoading(true);
         try {
-            const response = await fetch("http://10.30.5.84:3000/api/auth/login", {
+            const response = await fetch("http://10.30.5.12:3000/api/auth/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

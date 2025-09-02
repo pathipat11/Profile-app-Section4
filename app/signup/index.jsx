@@ -20,8 +20,13 @@ const Signup = () => {
     const router = useRouter();
 
     const handleSignup = async () => {
+        if (password.length < 6) {
+            Alert.alert("Error", "Password must be at least 6 characters long.");
+            return;
+        }
+        
         try {
-            const response = await fetch("http://10.30.5.84:3000/api/auth/register", {
+            const response = await fetch("http://10.30.5.12:3000/api/auth/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
