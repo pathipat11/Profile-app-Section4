@@ -9,7 +9,7 @@ import BookEdit from "./book_edit";
 
 const BookDetail = () => {
     const { id } = useLocalSearchParams();
-    console.log("BookDetail id:", id);
+    // console.log("BookDetail id:", id);
     const router = useRouter();
     const { color } = useTheme();
     const [book, setBook] = useState(null);

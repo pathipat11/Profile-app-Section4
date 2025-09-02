@@ -4,15 +4,23 @@ A modern and interactive profile showcase app built using **React Native** and *
 
 ## ✨ Features
 
-* 👤 **User Profile** with avatar, name, education, and interests
-* 🔐 **Authentication system** (Sign In / Sign Up)
-* 🧠 **Conditional routing** with token persistence via AsyncStorage
+* 👤 **User Profile** with avatar, username, email, role, and creation date
+* 🔐 **Authentication System**: Sign In / Sign Up with token-based session persistence
+* 🧠 **Conditional Routing**: Redirect users based on authentication status
 * 📘 **Course Information**: *Hybrid Mobile Application Programming (IN405109)*
-* 👨‍🏫 **Instructor details** with profile image
+* 👨‍🏫 **Instructor Details** with profile image
 * 🌗 **Theme Toggle** (Dark / Light) powered by Context API
 * 🔗 **Social Links** (Facebook, GitHub, LinkedIn)
-* 💬 **Animated Cards** with smooth scaling effect on press
-* 📱 **Mobile Responsive** and optimized for real-world usage
+* 💬 **Interactive Cards** with smooth animations
+* 📝 **Profile Editing**: Edit username and email via a modal popup
+* 📱 **Mobile Responsive**: Optimized for smartphones and tablets
+
+## 🎬 Demo Video
+
+Here is a quick GIF showing the app's interface and interactions:
+
+![App Demo](assets/video/profile-app.gif)
+*Replace `assets/video/profile-app.gif` with your GIF file path.*
 
 ## 🛠️ Tech Stack
 
@@ -66,7 +74,8 @@ Profile-app-Section3/
 ├── assets/
 │   └── image/
 │       ├── profile.jpg       # User profile image
-│       └── teacher.jpg       # Instructor image
+│       ├── teacher.jpg       # Instructor image
+│       └── demo.gif          # Demo GIF
 ├── package.json
 └── README.md
 ```
@@ -77,6 +86,9 @@ Profile-app-Section3/
 * 🧮 AsyncStorage-based session memory
 * 👤 Avatar in header using user's first letter
 * 🎨 Color themes switch in real-time
+* ✏️ Edit profile via modal popup
+* 📱 Fully responsive UI for mobile devices
+* 🎬 Demo GIF to showcase interactions
 
 ## 👤 Author
 

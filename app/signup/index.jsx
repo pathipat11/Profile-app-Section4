@@ -23,36 +23,46 @@ const Signup = () => {
 
 
     const handleSignup = async () => {
-        if (password.length < 6) {
-            Alert.alert("Error", "Password must be at least 6 characters long.");
-            return;
-        }
-        
+    if (password.length < 6) {
+        Alert.alert("Error", "Password must be at least 6 characters long.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/api/auth/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, email, password }),
+        });
+
+        let result;
         try {
-            const response = await fetch(`${API_URL}/api/auth/register`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ username, email, password }),
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                console.log("Register successful")
-                Alert.alert("Success", "Account created!", [
-                    { text: "OK", onPress: () => router.push("/signin") },
-                ]);
-            } else {
-                console.log("Signup failed:", result.message);
-                Alert.alert("Error", result.message || "Signup failed.");
-            }
-        } catch (error) {
-            console.error("Network Error:", error);
-            Alert.alert("Network Error", "Unable to connect to the server.");
+            result = await response.json();
+        } catch {
+            result = { error: await response.text() };
         }
-    };
+
+        if (response.ok) {
+            Alert.alert("Success", "Account created!", [
+                { text: "OK", onPress: () => router.push("/signin") },
+            ]);
+        } else {
+            // ถ้า server ส่ง validation errors เป็น array
+            let errorMsg = "Signup failed";
+            if (result.errors && Array.isArray(result.errors)) {
+                errorMsg = result.errors.map(e => e.msg).join("\n");
+            } else if (result.message || result.error) {
+                errorMsg = result.message || result.error;
+            }
+            console.log("Signup failed:", errorMsg);
+            Alert.alert("Error", errorMsg);
+        }
+    } catch (error) {
+        console.error("Network Error:", error);
+        Alert.alert("Network Error", "Unable to connect to the server.");
+    }
+};
+
 
     return (
         <View style={[styles.screen, { backgroundColor: color.background }]}>
