@@ -10,6 +10,7 @@ import {
 import { useRouter } from "expo-router";
 import { useTheme } from "../../context/ThemeContext";
 import { Link } from "expo-router";
+import Constants from "expo-constants";
 
 const Signup = () => {
     const { color } = useTheme();
@@ -18,6 +19,8 @@ const Signup = () => {
     const [password, setPassword] = useState("");
 
     const router = useRouter();
+    const API_URL = Constants.expoConfig.extra.apiUrl;
+
 
     const handleSignup = async () => {
         if (password.length < 6) {
@@ -26,7 +29,7 @@ const Signup = () => {
         }
         
         try {
-            const response = await fetch("http://10.30.5.12:3000/api/auth/register", {
+            const response = await fetch(`${API_URL}/api/auth/register`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

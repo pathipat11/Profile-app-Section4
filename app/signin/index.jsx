@@ -11,12 +11,14 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link, useRouter } from "expo-router";
 import { useTheme } from "../../context/ThemeContext";
+import Constants from "expo-constants";
 
 const Signin = () => {
     const { color } = useTheme();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const API_URL = Constants.expoConfig.extra.apiUrl;
 
     const router = useRouter();
 
@@ -28,7 +30,7 @@ const Signin = () => {
 
         setLoading(true);
         try {
-            const response = await fetch("http://10.30.5.12:3000/api/auth/login", {
+            const response = await fetch(`${API_URL}/api/auth/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

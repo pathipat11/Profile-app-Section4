@@ -1,8 +1,11 @@
 // app/book_detail.jsx
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert, TouchableOpacity, Modal } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Constants from "expo-constants";
+import BookEdit from "./book_edit";
 
 const BookDetail = () => {
     const { id } = useLocalSearchParams();
@@ -11,37 +14,56 @@ const BookDetail = () => {
     const { color } = useTheme();
     const [book, setBook] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [editModalVisible, setEditModalVisible] = useState(false);
+    const API_URL = Constants.expoConfig.extra.apiUrl;
 
-    useEffect(() => {
-        const fetchBook = async () => {
+
+    const fetchBook = async () => {
+        setLoading(true);
         try {
-            const response = await fetch(`http://10.30.5.12:3000/api/books/${id}`);
+            const response = await fetch(`${API_URL}/api/books/${id}`);
             const data = await response.json();
-            console.log("Book details", data.book)
             setBook(data.book);
         } catch (error) {
             console.error("Error fetching book details:", error);
         } finally {
             setLoading(false);
         }
-        };
-            if (id) fetchBook();
+    };
+
+    useEffect(() => {
+        if (id) fetchBook();
     }, [id]);
 
     const handleDelete = async () => {
         try {
-        const response = await fetch(`http://10.0.15.34:3000/api/books/${id}`, {
-            method: "DELETE",
-        });
-        if (response.ok) {
-            Alert.alert("Deleted", "Book deleted successfully", [
-            { text: "OK", onPress: () => router.back() },
-            ]);
-        } else {
-            console.error("Error deleting book");
-        }
+            // ดึง token ของ user
+            const token = await AsyncStorage.getItem("authToken");
+
+            if (!token) {
+                Alert.alert("Error", "User not authenticated!");
+                return;
+            }
+
+            const response = await fetch(`${API_URL}/api/books/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${token}`, // ส่ง token
+                },
+            });
+
+            if (response.ok) {
+                Alert.alert("Deleted", "Book deleted successfully", [
+                    { text: "OK", onPress: () => router.replace("/book") },
+                ]);
+            } else {
+                const result = await response.json();
+                Alert.alert("Error", result.message || "Failed to delete book.");
+                console.error("Error deleting book:", result);
+            }
         } catch (error) {
             console.error("Error deleting book:", error);
+            Alert.alert("Error", "Failed to delete book.");
         }
     };
 
@@ -69,40 +91,62 @@ const BookDetail = () => {
     }
 
     return (
-        <ScrollView style={[styles.container, { backgroundColor: color.background }]}>
-        <View style={[styles.card, { backgroundColor: color.surface, borderLeftColor: color.primary }]}>
-            <Text style={[styles.title, { color: color.primary }]}>{book.title}</Text>
-            <Text style={[styles.text, { color: color.textSecondary }]}>
-                <Text style={styles.label}>Author:</Text> {book.author}
-            </Text>
-            <Text style={[styles.text, { color: color.textSecondary }]}>
-                <Text style={styles.label}>Genre:</Text> {book.genre}
-            </Text>
-            <Text style={[styles.text, { color: color.textSecondary }]}>
-                <Text style={styles.label}>Year:</Text> {book.year}
-            </Text>
-            <Text style={[styles.text, { color: color.textSecondary }]}>
-                <Text style={styles.label}>Price:</Text> ${book.price}
-            </Text>
-            <Text style={[styles.text, { color: color.textSecondary }]}>
-            <Text style={styles.label}>Available:</Text>{" "}
-            <Text style={{ color: book.available ? "#28a745" : "#dc3545" }}>
-                {book.available ? "✅ Yes" : "❌ No"}
-            </Text>
-            </Text>
-            <Text style={[styles.text, { color: color.textSecondary }]}>
-                <Text style={styles.label}>Added By:</Text> {book.addedBy?.username}
-            </Text>
-            <Text style={[styles.text, { color: color.textSecondary }]}>
-                <Text style={styles.label}>Description:</Text> {book.description || "No description"}
-            </Text>
-        </View>
+        <View style={{ flex: 1 }}>
+            <ScrollView style={[styles.container, { backgroundColor: color.background }]}>
+            <View style={[styles.card, { backgroundColor: color.surface, borderLeftColor: color.primary }]}>
+                <Text style={[styles.title, { color: color.primary }]}>{book.title}</Text>
+                <Text style={[styles.text, { color: color.textSecondary }]}>
+                    <Text style={styles.label}>Author:</Text> {book.author}
+                </Text>
+                <Text style={[styles.text, { color: color.textSecondary }]}>
+                    <Text style={styles.label}>Genre:</Text> {book.genre}
+                </Text>
+                <Text style={[styles.text, { color: color.textSecondary }]}>
+                    <Text style={styles.label}>Year:</Text> {book.year}
+                </Text>
+                <Text style={[styles.text, { color: color.textSecondary }]}>
+                    <Text style={styles.label}>Price:</Text> ${book.price}
+                </Text>
+                <Text style={[styles.text, { color: color.textSecondary }]}>
+                <Text style={styles.label}>Available:</Text>{" "}
+                <Text style={{ color: book.available ? "#28a745" : "#dc3545" }}>
+                    {book.available ? "✅ Yes" : "❌ No"}
+                </Text>
+                </Text>
+                <Text style={[styles.text, { color: color.textSecondary }]}>
+                    <Text style={styles.label}>Added By:</Text> {book.addedBy?.username}
+                </Text>
+                <Text style={[styles.text, { color: color.textSecondary }]}>
+                    <Text style={styles.label}>Description:</Text> {book.description || "No description"}
+                </Text>
+            </View>
 
-        {/* ปุ่ม Delete */}
-        <TouchableOpacity style={[styles.button, { backgroundColor: "#dc3545" }]} onPress={confirmDelete}>
-            <Text style={styles.buttonText}>Delete Book</Text>
-        </TouchableOpacity>
-        </ScrollView>
+            {/* ปุ่ม Edit */}
+            <TouchableOpacity style={[styles.button, { backgroundColor: color.primary }]} onPress={() => setEditModalVisible(true)}>
+                <Text style={styles.buttonText}>Edit Book</Text>
+            </TouchableOpacity>
+
+            {/* ปุ่ม Delete */}
+            <TouchableOpacity 
+                style={[styles.button, { backgroundColor: "#dc3545" }]} 
+                onPress={confirmDelete}
+            >
+                <Text style={styles.buttonText}>Delete Book</Text>
+            </TouchableOpacity>
+            </ScrollView>
+            
+            {/* Modal Edit */}
+            <Modal visible={editModalVisible} animationType="slide" transparent={true}>
+                <View style={styles.modalBackground}>
+                    <BookEdit
+                    id={id}
+                    onClose={() => setEditModalVisible(false)}
+                    onUpdate={() => { fetchBook(); setEditModalVisible(false); }}
+                    />
+                </View>
+            </Modal>
+
+        </View>
     );
 };
 
@@ -128,6 +172,7 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontWeight: "bold",
         marginBottom: 12,
+        textAlign: "center"
     },
     text: {
         fontSize: 15,
@@ -151,5 +196,19 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
+    },
+    modalBackground: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.5)",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 20,
+    },
+    modalInner: {
+        width: "100%",
+        height: "90%",
+        backgroundColor: "#fff",
+        borderRadius: 12,
+        overflow: "hidden",
     },
 });
