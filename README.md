@@ -1,4 +1,4 @@
-# 📱 Profile-app-Section3
+# 📱 Profile-app-Section4
 
 A modern and interactive profile showcase app built using **React Native** and **Expo Router**. This app displays personal profile information, course details, and allows user authentication with a clean and elegant UI supporting both light and dark modes.
 
